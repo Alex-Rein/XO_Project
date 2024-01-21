@@ -103,7 +103,7 @@ def win_check(field, turn_count, first_player):  # Проверка на выи�
 
 
 def winner(turn_count):  # Объявление победителя
-    player = "Крестики" if turn_count % 2 == 0 else "Нолики"
+    player = "Крестики" if turn_count % 2 == 1 else "Нолики"
     print(f"Поздравляю! {player} победили!")
 
 
