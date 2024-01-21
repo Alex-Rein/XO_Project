@@ -1,8 +1,5 @@
 import random
 
-turn_count = 0
-field = [["-", "-", "-"], ["-", "-", "-"], ["-", "-", "-"]]
-
 
 def greetings():  # Приветствие и правила игры
     print("""Приветствую в игре крестики нолики!
@@ -15,22 +12,26 @@ def greetings():  # Приветствие и правила игры
     input("Нажмите Enter чтобы начать")
 
 
-def turn():  # Объявление игрока + счетчик хода (глобальный)
-    global turn_count
+def turn(turn_count, first_player):  # Объявление игрока + счетчик хода
     turn_count += 1
-    if turn_count < 10:
-        print("Ходят крестики!") if turn_count % 2 == 0 else print("Ходят нолики!")
+    if turn_count < 10:  # Проверка что еще нет ничьей для вывода чей текущий ход
+        if turn_count % 2 == 1:
+            print('Ходят крестики') if first_player == 'x' else print('Ходят нолики')
+        else:
+            print('Ходят нолики') if first_player == 'x' else print('Ходят крестики')
+    return turn_count
 
 
-def random_start():  # Случайно определяем кто ходит первым
-    global turn_count
+def random_start(turn_count):  # Случайно определяем кто ходит первым
     check = random.randrange(10)
     print(check)
     if check < 5:  # Ходят крестики, иначе нолики
-        turn_count += 1
+        return "x"
+    else:
+        return "o"
 
 
-def draw_field():  # Отрисовка игрового поля (с координатами на В и Л границах)
+def draw_field(field):  # Отрисовка игрового поля (с координатами на В и Л границах)
     print("\n"*3)
     print("  0 1 2")
     for i in range(3):
@@ -38,11 +39,14 @@ def draw_field():  # Отрисовка игрового поля (с коорд
     print()
 
 
-def player_symbol():  # Позвращает символ игрока
-    return "x" if turn_count % 2 == 0 else "o"
+def player_symbol(turn_count, first_player):  # Возвращает символ игрока
+    if turn_count % 2 == 1:
+        return 'x' if first_player == 'x' else 'o'
+    else:
+        return 'o' if first_player == 'x' else 'x'
 
 
-def move():  # Укороченная функция хода по координатам с проверками
+def move(field, turn_count, first_player):  # Укороченная функция хода по координатам с проверками
     while True:  # Цикл проверки правильности хода
         while True:  # Тут получаем и проверяем сразу обе координаты
             coords = input("Введите X и Y через пробел: ").split()
@@ -55,14 +59,14 @@ def move():  # Укороченная функция хода по коорди�
             else:
                 print("Указаны неправильные координаты!")
         if field[y][x] == "-":  # Проверка доступности хода
-            field[y][x] = player_symbol()  # Делаем ход
-            break
+            field[y][x] = player_symbol(turn_count, first_player)  # Делаем ход
+            return field
         else:  # Все фигня, давай по новой
             print("Клетка занята, укажите свободную!")
 
 
-def win_check():  # Проверка на выигрыш сходившего игрока
-    c = player_symbol()
+def win_check(field, turn_count, first_player):  # Проверка на выигрыш сходившего игрока
+    c = player_symbol(turn_count, first_player)
     check_result = False
 
     for row in field:  # Проверка горизонтальных линий
@@ -98,29 +102,33 @@ def win_check():  # Проверка на выигрыш сходившего и
     return check_result
 
 
-def winner():  # Объявление победителя
+def winner(turn_count):  # Объявление победителя
     player = "Крестики" if turn_count % 2 == 0 else "Нолики"
     print(f"Поздравляю! {player} победили!")
 
 
-def draw():  # Обработка ничьей
+def draw(turn_count):  # Обработка ничьей
     if turn_count == 10:
         print("Получилась ничья! Вы сильные соперники!")
         return True
 
 
 def start_game():  # Функция запуска игры
+    turn_count = 0  # Инициализация пекременных
+    field = [["-", "-", "-"], ["-", "-", "-"], ["-", "-", "-"]]
+    first_player = random_start(turn_count)
+
     greetings()
-    random_start()
-    draw_field()
+    draw_field(field)
     while True:
-        turn()
-        if draw():
+        turn_count = turn(turn_count, first_player)
+        if draw(turn_count):
             break
-        move()
-        draw_field()
-        if win_check():
-            winner()
+        field = move(field, turn_count, first_player)
+        print(turn_count, first_player)
+        draw_field(field)
+        if win_check(field, turn_count, first_player):
+            winner(turn_count)
             break
 
 
